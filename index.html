@@ -86,7 +86,6 @@
     <script>
         const BASE_URL = 'https://ROSEMARY11151218.github.io/E-test/';
 
-        // 注意：这里的数据 id 只是对应顺序，后面会通过字符串统一拼接成小写数字
         const quizData = [
             { id: 1, text: "a.生气 b.紧张 c.期待 d.伤心", correctIndex: 1 },
             { id: 2, text: "a.疲劳 b.生气 c.开心 d.不耐烦", correctIndex: 2 },
@@ -159,14 +158,13 @@
 
             quizData.forEach(q => {
                 const img = new Image();
-                // 重点修改：强制使用小写字母 '1', '2' ... '10' ... '15'
-                img.src = BASE_URL + 'Eye' + String(q.id).toLowerCase() + '.png';
+                // 最终修改：使用大写字母 E，加上随机时间戳 ?t= 强制刷新缓存
+                img.src = BASE_URL + 'Eye' + q.id + '.png?t=' + Date.now();
                 img.onload = updateProgress;
                 img.onerror = updateProgress;
             });
         }
         
-        // 页面一打开就立即加载
         preloadImages();
 
         function showUserInfoPage() { switchPage('userInfo'); }
@@ -190,8 +188,8 @@
         function loadQuestion() {
             const qData = quizData[currentQuestion];
             document.getElementById('current-q-num').textContent = currentQuestion + 1;
-            // 重点修改：使用全小写数字拼接图片路径
-            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + String(qData.id).toLowerCase() + '.png';
+            // 最终修改：使用大写字母 E，加上随机时间戳 ?t= 强制刷新缓存
+            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + qData.id + '.png?t=' + Date.now();
             
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
