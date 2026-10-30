@@ -19,7 +19,6 @@
         .input-group input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; background-color: #f9f9f9; outline: none; text-align: center; }
         .input-group input:focus { border-color: #8b5e3c; background-color: #fff; }
         .question-info { font-size: 14px; color: #999; margin-bottom: 15px; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); }
-        /* ✅ 重点：去掉固定正方形，容器高度跟随图片，原图完整显示！绝对不会裁切 */
         .img-wrapper {
             width: 100%;
             border-radius: 15px;
@@ -148,28 +147,29 @@
             pages[pageName].classList.add('active');
         }
 
+        // ========== 升级预加载：全部图片加载完毕才放行 ==========
         function preloadImages() {
             const total = quizData.length;
             let loaded = 0;
             const progressFill = document.getElementById('progress-fill');
             const loadingText = document.getElementById('loading-text');
 
-            function updateProgress() {
+            quizData.forEach(q => {
+                const img = new Image();
+                img.src = `Eye${q.id}.png`;
+                img.onload = onOneLoaded;
+                img.onerror = onOneLoaded;
+            });
+            function onOneLoaded() {
                 loaded++;
                 const percent = Math.round((loaded / total) * 100);
                 progressFill.style.width = percent + '%';
                 loadingText.textContent = percent + '%';
+                // ✅ 必须全部加载完成，才跳转到首页
                 if (loaded >= total) {
                     switchPage('home');
                 }
             }
-
-            quizData.forEach(q => {
-                const img = new Image();
-                img.src = `Eye${q.id}.png?t=${Date.now()}`;
-                img.onload = updateProgress;
-                img.onerror = updateProgress;
-            });
         }
 
         preloadImages();
@@ -195,7 +195,7 @@
         function loadQuestion() {
             const qData = quizData[currentQuestion];
             document.getElementById('current-q-num').textContent = currentQuestion + 1;
-            document.getElementById('quiz-img').src = `Eye${qData.id}.png?t=${Date.now()}`;
+            document.getElementById('quiz-img').src = `Eye${qData.id}.png`;
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
@@ -220,6 +220,7 @@
             }
         }
 
+        // ========== 量表按钮直接显示数字1~7 ==========
         function renderScale() {
             const container = document.getElementById('scale-container');
             container.innerHTML = '';
@@ -239,6 +240,7 @@
                     optBtn.className = 'scale-option';
                     optBtn.dataset.key = `q${qIdx}`;
                     optBtn.dataset.value = i;
+                    optBtn.innerText = i; // ✅ 直接展示数字
                     optBtn.onclick = function() {
                         optionsEl.querySelectorAll('.scale-option').forEach(btn => btn.classList.remove('selected'));
                         this.classList.add('selected');
