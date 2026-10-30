@@ -84,8 +84,6 @@
     </div>
 
     <script>
-        const BASE_URL = 'https://ROSEMARY11151218.github.io/E-test/';
-
         const quizData = [
             { id: 1, text: "a.生气 b.紧张 c.期待 d.伤心", correctIndex: 1 },
             { id: 2, text: "a.疲劳 b.生气 c.开心 d.不耐烦", correctIndex: 2 },
@@ -139,7 +137,7 @@
             pages[pageName].classList.add('active');
         }
 
-        // 预加载图片
+        // 预加载图片（相对路径）
         function preloadImages() {
             const total = quizData.length;
             let loaded = 0;
@@ -158,13 +156,12 @@
 
             quizData.forEach(q => {
                 const img = new Image();
-                // 最终修改：使用大写字母 E，加上随机时间戳 ?t= 强制刷新缓存
-                img.src = BASE_URL + 'Eye' + q.id + '.png?t=' + Date.now();
+                img.src = `Eye${q.id}.png?t=${Date.now()}`;
                 img.onload = updateProgress;
                 img.onerror = updateProgress;
             });
         }
-        
+
         preloadImages();
 
         function showUserInfoPage() { switchPage('userInfo'); }
@@ -188,9 +185,9 @@
         function loadQuestion() {
             const qData = quizData[currentQuestion];
             document.getElementById('current-q-num').textContent = currentQuestion + 1;
-            // 最终修改：使用大写字母 E，加上随机时间戳 ?t= 强制刷新缓存
-            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + qData.id + '.png?t=' + Date.now();
-            
+            // 相对路径读取图片
+            document.getElementById('quiz-img').src = `Eye${qData.id}.png?t=${Date.now()}`;
+
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
             const options = qData.text.split(' ');
@@ -220,7 +217,7 @@
             scaleData[0].questions.forEach((q, qIdx) => {
                 const itemEl = document.createElement('div');
                 itemEl.className = 'scale-item';
-                
+
                 const qEl = document.createElement('div');
                 qEl.className = 'scale-question';
                 qEl.textContent = `${qIdx + 1}. ${q}`;
