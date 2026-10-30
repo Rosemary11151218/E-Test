@@ -19,8 +19,21 @@
         .input-group input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 15px; background-color: #f9f9f9; outline: none; text-align: center; }
         .input-group input:focus { border-color: #8b5e3c; background-color: #fff; }
         .question-info { font-size: 14px; color: #999; margin-bottom: 15px; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); }
-        .img-wrapper { width: 100%; aspect-ratio: 1 / 1; border-radius: 15px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .img-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        /* ========== 修改后的图片容器，不再强制正方形，完整显示图片 ========== */
+        .img-wrapper {
+            width: 100%;
+            max-height: 420px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .img-wrapper img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
         .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
         .option-btn { background-color: #f8f8f8; border: 1px solid #eee; padding: 18px 10px; border-radius: 12px; font-size: 15px; color: #444; cursor: pointer; transition: all 0.2s; }
         .option-btn:active { background-color: #e8e8e8; transform: scale(0.98); }
@@ -228,7 +241,6 @@
                 for (let i = 1; i <= 7; i++) {
                     const optBtn = document.createElement('div');
                     optBtn.className = 'scale-option';
-                    optBtn.textContent = i;
                     optBtn.dataset.key = `q${qIdx}`;
                     optBtn.dataset.value = i;
                     optBtn.onclick = function() {
