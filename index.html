@@ -376,7 +376,8 @@
 
             quizData.forEach(q => {
                 const img = new Image();
-                img.src = BASE_URL + 'Eye' + q.id + '.jpg';
+                // 更新后缀为 .png，并匹配大写数字
+                img.src = BASE_URL + 'Eye' + q.id + '.png';
                 img.onload = updateProgress;
                 img.onerror = updateProgress;
             });
@@ -410,7 +411,8 @@
         function loadQuestion() {
             const qData = quizData[currentQuestion];
             document.getElementById('current-q-num').textContent = currentQuestion + 1;
-            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + qData.id + '.jpg';
+            // 更新后缀为 .png
+            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + qData.id + '.png';
 
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
