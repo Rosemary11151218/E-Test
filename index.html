@@ -1,1 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>读心术情绪测试</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        body {
+            background-color: #fdfbf7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 30px 20px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
+        .page {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 26px; margin-bottom: 15px; color: #4a4a4a; }
+        p { font-size: 15px; color: #666; margin-bottom: 40px; line-height: 1.6; }
+
+        .btn {
+            background-color: #8b5e3c;
+            color: white;
+            border: none;
+            padding: 14px 0;
+            width: 80%;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+        .btn:active { background-color: #6f4a30; }
+
+        .input-group {
+            width: 80%;
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 15px;
+            background-color: #f9f9f9;
+            outline: none;
+            text-align: center;
+        }
+        .input-group input:focus {
+            border-color: #8b5e3c;
+            background-color: #fff;
+        }
+
+        /* 答题页 */
+        .question-info {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 15px;
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .img-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+        .option-btn {
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            padding: 18px 10px;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-btn:active {
+            background-color: #e8e8e8;
+            transform: scale(0.98);
+        }
+
+        /* 量表页样式 */
+        .scale-section {
+            width: 100%;
+            text-align: left;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .scale-item {
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .scale-item:last-child {
+            border-bottom: none;
+        }
+        .scale-question {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .scale-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+        }
+        .scale-option {
+            flex: 1;
+            padding: 8px 2px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .scale-option.selected {
+            background-color: #8b5e3c;
+            color: white;
+            border-color: #8b5e3c;
+        }
+
+        /* 结果页 */
+        .score-box {
+            font-size: 38px;
+            font-weight: bold;
+            color: #8b5e3c;
+            margin-bottom: 15px;
+        }
+        .level-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .level-desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+            padding: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        /* 加载页 */
+        .loading-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .progress-bar-bg {
+            width: 80%;
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px auto 10px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #8b5e3c;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .loading-text {
+            font-size: 14px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 0. 加载页 -->
+        <div id="page-loading" class="page active">
+            <div class="loading-icon">👁️</div>
+            <h1>正在加载测试资源...</h1>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <p class="loading-text" id="loading-text">0%</p>
+        </div>
+
+        <!-- 1. 首页 -->
+        <div id="page-home" class="page">
+            <h1>读心术情绪测试</h1>
+            <p>观察图片中人物的眼睛，你能猜出他们此刻内心的真实情绪吗？<br>快来测测你的情商有多高！</p>
+            <button class="btn" onclick="showUserInfoPage()">开始测试</button>
+        </div>
+
+        <!-- 2. 用户信息填写页 -->
+        <div id="page-user-info" class="page">
+            <h1>请先登记信息</h1>
+            <p>为了方便查看测试结果，请填写以下信息</p>
+            <div class="input-group">
+                <input type="text" id="input-name" placeholder="请输入您的姓名">
+            </div>
+            <div class="input-group">
+                <input type="text" id="input-phone" placeholder="请输入手机尾号4位">
+            </div>
+            <div class="input-group">
+                <input type="text" id="input-id" placeholder="请输入您的学号">
+            </div>
+            <button class="btn" onclick="startTest()">正式进入测试</button>
+        </div>
+
+        <!-- 3. 答题页 -->
+        <div id="page-quiz" class="page">
+            <div class="question-info">第 <span id="current-q-num">1</span> 题</div>
+            <div class="img-wrapper">
+                <img id="quiz-img" src="" alt="情绪图片加载中...">
+            </div>
+            <div id="options-container" class="options-grid"></div>
+        </div>
+
+        <!-- 4. 李克特量表页 -->
+        <div id="page-scale" class="page">
+            <h1>请根据您的实际情况作答</h1>
+            <p style="margin-bottom:15px; font-size:13px;">1=非常不符合，7=非常符合</p>
+
+            <div class="scale-section" id="scale-container">
+                <!-- 量表题目由 JS 动态生成 -->
+            </div>
+
+            <button class="btn" onclick="submitScale()">提交问卷</button>
+        </div>
+
+        <!-- 5. 结果页 -->
+        <div id="page-result" class="page">
+            <div id="user-result-header" style="margin-bottom: 20px; color: #8b5e3c; font-size: 14px;"></div>
+            <h2>测试结果</h2>
+            <div class="score-box">答对 <span id="final-score">0</span> 题</div>
+            <div id="result-title" class="level-title"></div>
+            <div id="result-desc" class="level-desc"></div>
+            <button class="btn" onclick="restartTest()">再测一次</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== 配置 =====
+        const BASE_URL = 'https://ROSEMARY11151218.github.io/E-test/';
+
+        // ===== 情绪测试题目 =====
+        const quizData = [
+            { id: 1, text: "a.生气 b.紧张 c.期待 d.伤心", correctIndex: 1 },
+            { id: 2, text: "a.疲劳 b.生气 c.开心 d.不耐烦", correctIndex: 2 },
+            { id: 3, text: "a.害怕 b.愤怒 c.伤心 d.疑问", correctIndex: 1 },
+            { id: 4, text: "a.疲劳 b.生气 c.开心 d.悲伤", correctIndex: 3 },
+            { id: 5, text: "a.伤心 b.生气 c.害怕 d.期待", correctIndex: 3 },
+            { id: 6, text: "a.伤心 b.生气 c.愉快 d.反感", correctIndex: 0 },
+            { id: 7, text: "a.疲惫 b.紧张 c.愉快 d.悲哀", correctIndex: 3 },
+            { id: 8, text: "a.不耐烦 b.生气 c.愉快 d.惊讶", correctIndex: 2 },
+            { id: 9, text: "a.期待 b.伤心 c.愉快 d.疑惑", correctIndex: 0 },
+            { id: 10, text: "a.惊喜 b.害怕 c.愉快 d.疑惑", correctIndex: 0 },
+            { id: 11, text: "a.不耐烦 b.害怕 c.紧张 d.疑惑", correctIndex: 0 },
+            { id: 12, text: "a.惊喜 b.害怕 c.紧张 d.疑惑", correctIndex: 1 },
+            { id: 13, text: "a.开心 b.害怕 c.好奇 d.失望", correctIndex: 1 },
+            { id: 14, text: "a.不耐烦 b.憎恶 c.紧张 d.疑惑", correctIndex: 1 },
+            { id: 15, text: "a.不满 b.害怕 c.紧张 d.失落", correctIndex: 3 }
+        ];
+
+        // ===== 李克特量表题目 =====
+        const scaleData = [
+            {
+                questions: [
+                    "我经常被担心自己工作表现不佳的想法所困扰。",
+                    "我担心自己的工作表现会低于其他同事。",
+                    "我因担心无法达到绩效目标而感到紧张和不安。",
+                    "我担心自己无法获得积极的工作绩效评价。",
+                    "我经常担心自己无法在规定时间内完成工作任务。",
+                    "我担心别人是否认为我是一个合格的员工。",
+                    "我担心自己无法成功应对工作中的各种要求。",
+                    "即使我已经尽了最大努力，我仍然担心自己的工作表现是否足够好。",
+                    "我感到缺少陪伴。",
+                    "我感到被冷落或排斥。",
+                    "我感到与他人隔绝。"
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let userInfo = {};
+        let scaleAnswers = {};
+
+        const pages = {
+            loading: document.getElementById('page-loading'),
+            home: document.getElementById('page-home'),
+            userInfo: document.getElementById('page-user-info'),
+            quiz: document.getElementById('page-quiz'),
+            scale: document.getElementById('page-scale'),
+            result: document.getElementById('page-result')
+        };
+
+        function switchPage(pageName) {
+            Object.values(pages).forEach(page => page.classList.remove('active'));
+            pages[pageName].classList.add('active');
+        }
+
+        // ===== 预加载所有图片 =====
+        function preloadImages() {
+            const total = quizData.length;
+            let loaded = 0;
+            const progressFill = document.getElementById('progress-fill');
+            const loadingText = document.getElementById('loading-text');
+
+            function updateProgress() {
+                loaded++;
+                const percent = Math.round((loaded / total) * 100);
+                progressFill.style.width = percent + '%';
+                loadingText.textContent = percent + '%';
+                if (loaded >= total) {
+                    switchPage('home');
+                }
+            }
+
+            quizData.forEach(q => {
+                const img = new Image();
+                img.src = BASE_URL + 'Eye' + q.id + '.jpg';
+                img.onload = updateProgress;
+                img.onerror = updateProgress;
+            });
+        }
+
+        // 页面打开后立即开始预加载
+        preloadImages();
+
+        function showUserInfoPage() {
+            switchPage('userInfo');
+        }
+
+        function startTest() {
+            const name = document.getElementById('input-name').value.trim();
+            const phone = document.getElementById('input-phone').value.trim();
+            const id = document.getElementById('input-id').value.trim();
+
+            if (!name || !phone || !id) {
+                alert("请完整填写姓名、手机尾号及学号信息后再开始测试哦！");
+                return;
+            }
+
+            userInfo = { name, phone, id };
+            currentQuestion = 0;
+            score = 0;
+            scaleAnswers = {};
+            switchPage('quiz');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const qData = quizData[currentQuestion];
+            document.getElementById('current-q-num').textContent = currentQuestion + 1;
+            document.getElementById('quiz-img').src = BASE_URL + 'Eye' + qData.id + '.jpg';
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            const options = qData.text.split(' ');
+            options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (selectedIndex === quizData[currentQuestion].correctIndex) {
+                score++;
+            }
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                renderScale();
+                switchPage('scale');
+            }
+        }
+
+        // ===== 渲染李克特量表 =====
+        function renderScale() {
+            const container = document.getElementById('scale-container');
+            container.innerHTML = '';
+
+            scaleData[0].questions.forEach((q, qIdx) => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'scale-item';
+
+                const qEl = document.createElement('div');
+                qEl.className = 'scale-question';
+                qEl.textContent = `${qIdx + 1}. ${q}`;
+                itemEl.appendChild(qEl);
+
+                const optionsEl = document.createElement('div');
+                optionsEl.className = 'scale-options';
+
+                for (let i = 1; i <= 7; i++) {
+                    const optBtn = document.createElement('div');
+                    optBtn.className = 'scale-option';
+                    optBtn.textContent = i;
+                    optBtn.dataset.key = `q${qIdx}`;
+                    optBtn.dataset.value = i;
+                    optBtn.onclick = function() {
+                        optionsEl.querySelectorAll('.scale-option').forEach(btn => btn.classList.remove('selected'));
+                        this.classList.add('selected');
+                        scaleAnswers[this.dataset.key] = parseInt(this.dataset.value);
+                    };
+                    optionsEl.appendChild(optBtn);
+                }
+
+                itemEl.appendChild(optionsEl);
+                container.appendChild(itemEl);
+            });
+        }
+
+        // ===== 提交量表，跳转结果页 =====
+        function submitScale() {
+            const totalQuestions = scaleData[0].questions.length;
+            if (Object.keys(scaleAnswers).length < totalQuestions) {
+                alert("请完成所有题目后再提交哦！");
+                return;
+            }
+
+            // 在这里可以把 userInfo 和 scaleAnswers 发送到后端
+            // console.log("用户信息:", userInfo);
+            // console.log("量表答案:", scaleAnswers);
+
+            showResult();
+        }
+
+        function showResult() {
+            let level = {};
+            if (score >= 14) {
+                level = { title: "读心高手", desc: "可以敏感捕捉到别人最细微的情绪，洞察一切，其他人别瞒过他。" };
+            } else if (score >= 9) {
+                level = { title: "情商高", desc: "成熟、善于察言观色，而且能很快感知别人的情绪，知道别人在想什么。" };
+            } else if (score >= 6) {
+                level = { title: "沟通自如", desc: "大部分的人都属于这个范围，可以自如的和别人交流，讲道理，沟通无问题。" };
+            } else if (score >= 1) {
+                level = { title: "沟通吃力", desc: "沟通起来略显吃力，而且，别人也不太懂他。" };
+            } else {
+                level = { title: "麻木冷漠", desc: "额，麻木冷漠！不得不怀疑有这么冷漠的人吗？" };
+            }
+
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('result-title').textContent = level.title;
+            document.getElementById('result-desc').textContent = level.desc;
+            document.getElementById('user-result-header').textContent =
+                `姓名：${userInfo.name}  |  学号：${userInfo.id}`;
+
+            switchPage('result');
+        }
+
+        function restartTest() {
+            document.getElementById('input-name').value = '';
+            document.getElementById('input-phone').value = '';
+            document.getElementById('input-id').value = '';
+            scaleAnswers = {};
+            switchPage('home');
+        }
+    </script>
+</body>
+</html>
