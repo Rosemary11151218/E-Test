@@ -40,6 +40,12 @@
         .option-btn { background-color: #f8f8f8; border: 1px solid #eee; padding: 18px 10px; border-radius: 12px; font-size: 15px; color: #444; cursor: pointer; transition: all 0.2s; }
         .option-btn:active { background-color: #e8e8e8; transform: scale(0.98); }
         .scale-section { width: 100%; text-align: left; max-height: 420px; overflow-y: auto; padding-right: 5px; }
+        .scale-desc {
+            font-size: 13px;
+            color: #555;
+            margin-bottom:16px;
+            line-height:1.5;
+        }
         .scale-item { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0; }
         .scale-item:last-child { border-bottom: none; }
         .scale-question { font-size: 14px; color: #333; margin-bottom: 8px; line-height: 1.5; }
@@ -80,13 +86,13 @@
         <div id="page-quiz" class="page">
             <div class="question-info">第 <span id="current-q-num">1</span> 题</div>
             <div class="img-wrapper"><img id="quiz-img" src="" alt="情绪图片加载中..."></div>
-            <!-- 新增提示小字 -->
             <div class="img-tip">图片加载需要时间，请耐心等待哦~</div>
             <div id="options-container" class="options-grid"></div>
         </div>
         <div id="page-scale" class="page">
             <h1>请根据您的实际情况作答</h1>
             <p style="margin-bottom:15px; font-size:13px;">1=非常不符合，7=非常符合</p>
+            <div class="scale-desc">请回想您过去几周内的工作经历，并评价您在多大程度上产生了以下感受。</div>
             <div class="scale-section" id="scale-container"></div>
             <button class="btn" onclick="submitScale()">提交问卷</button>
         </div>
@@ -121,17 +127,16 @@
 
         const scaleData = [{
             questions: [
-                "我经常被担心自己工作表现不佳的想法所困扰。",
-                "我担心自己的工作表现会低于其他同事。",
-                "我因担心无法达到绩效目标而感到紧张和不安。",
-                "我担心自己无法获得积极的工作绩效评价。",
-                "我经常担心自己无法在规定时间内完成工作任务。",
-                "我担心别人是否认为我是一个合格的员工。",
-                "我担心自己无法成功应对工作中的各种要求。",
-                "即使我已经尽了最大努力，我仍然担心自己的工作表现是否足够好。",
-                "我感到缺少陪伴。",
-                "我感到被冷落或排斥。",
-                "我感到与他人隔绝。"
+                "我感到受到启发。",
+                "我感到警觉。",
+                "我感到兴奋。",
+                "我感到充满热情。",
+                "我感到坚定、有决心。",
+                "我感到害怕。",
+                "我感到难过和沮丧。",
+                "我感到紧张。",
+                "我感到恐惧。",
+                "我感到苦恼和忧虑。"
             ]
         }];
 
