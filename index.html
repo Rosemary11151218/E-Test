@@ -155,6 +155,7 @@
         let score = 0;
         let userInfo = {};
         let scaleAnswers = {};
+        const WEB3FORMS_KEY = "2f37f6dc-684c-48f5-804b-38ffdb29ce2f";
 
         const pages = {
             loading: document.getElementById('page-loading'),
@@ -273,14 +274,40 @@
             });
         }
 
-        function submitScale() {
+        async function submitScale() {
             const totalQuestions = scaleData[0].questions.length;
             if (Object.keys(scaleAnswers).length < totalQuestions) {
                 alert("请完成所有题目后再提交哦！");
                 return;
             }
-            console.log("用户信息:", userInfo);
-            console.log("量表答案:", scaleAnswers);
+            // 组装提交给Web3Forms的数据
+            const payload = {
+                access_key: WEB3FORMS_KEY,
+                name: userInfo.name,
+                phone_last4: userInfo.phone,
+                student_id: userInfo.id,
+                quiz_score: score,
+                ...scaleAnswers
+            };
+            try {
+                const res = await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    console.log("✅ Web3Forms提交成功", result);
+                } else {
+                    console.warn("⚠️ Web3Forms提交返回失败", result);
+                }
+            } catch (err) {
+                console.error("❌ Web3Forms提交异常（网络/跨域）", err);
+            }
+            // 无论提交成功失败，都展示结果页
             showResult();
         }
 
